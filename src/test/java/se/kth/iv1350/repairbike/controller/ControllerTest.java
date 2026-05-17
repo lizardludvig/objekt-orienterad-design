@@ -3,17 +3,18 @@ package se.kth.iv1350.repairbike.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows; 
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import se.kth.iv1350.repairbike.integration.CustomerRegistry;
 import se.kth.iv1350.repairbike.integration.Printer;
 import se.kth.iv1350.repairbike.integration.RepairOrderRegistry;
-import se.kth.iv1350.repairbike.model.Bike;
-import se.kth.iv1350.repairbike.model.Customer;
+import se.kth.iv1350.repairbike.integration.CustomerNotFoundException;
+import se.kth.iv1350.repairbike.model.BikeDTO;
+import se.kth.iv1350.repairbike.model.CustomerDTO;
 import se.kth.iv1350.repairbike.model.OrderState;
+import se.kth.iv1350.repairbike.model.RepairOrderDTO;
 import se.kth.iv1350.repairbike.model.RepairOrder;
 
 /**
@@ -29,44 +30,52 @@ class ControllerTest {
     @BeforeEach
     void setUp() {
         CustomerRegistry customerRegistry = new CustomerRegistry();
-        repairOrderRegistry = new RepairOrderRegistry();
+
+        repairOrderRegistry = RepairOrderRegistry.getInstance();
+
         Printer printer = new Printer();
-        controller = new Controller(customerRegistry, repairOrderRegistry, printer);
+
+        controller = new Controller(customerRegistry, printer);
     }
 
     /**
      * Verifies known customer can be found by phone number.
      */
     @Test
-    void testCheckCustomerReturnsKnownCustomer() {
-        Customer customer = controller.checkCustomer("0701234567");
+    void testCheckCustomerReturnsKnownCustomer() throws CustomerNotFoundException {
+        CustomerDTO customer = controller.checkCustomer("0701234567");
         assertNotNull(customer, "Known phone number returned null instead of a customer.");
-        assertEquals("Alice Andersson", customer.getName(), "Returned customer did not match the expected predefined customer.");
+        assertEquals("Alice Andersson", customer.getName(),
+                "Returned customer did not match the expected predefined customer.");
     }
 
     /**
-     * Verifies unknown customer phone returns null.
+     * Verifies unknown customer phone throws exception. 
      */
     @Test
-    void testCheckCustomerReturnsNullForUnknownPhone() {
-        Customer customer = controller.checkCustomer("0000000000");
-        assertNull(customer, "Unknown phone number failed to return null.");
+    void testCheckCustomerThrowsForUnknownPhone() {
+        CustomerNotFoundException exception = assertThrows(
+                CustomerNotFoundException.class,
+                () -> controller.checkCustomer("0000000000"),
+                "Expected checkCustomer to throw CustomerNotFoundException for a missing customer.");
+        assertEquals("0000000000", exception.getPhoneNumber(), "Exception did not contain the expected phone number.");
     }
 
     /**
      * Verifies registering a problem creates and stores an order.
      */
     @Test
-    void testRegisterProblemCreatesStoredOrder() {
-        Customer customer = controller.checkCustomer("0701234567");
-        Bike bike = customer.getBikes().get(0);
+    void testRegisterProblemCreatesStoredOrder() throws CustomerNotFoundException {
+        CustomerDTO customer = controller.checkCustomer("0701234567");
+        BikeDTO bike = customer.getBikes().get(0);
 
-        RepairOrder created = controller.registerProblem(customer, bike, "Rear brake noise");
+        RepairOrderDTO created = controller.registerProblem(customer, bike, "Rear brake noise");
         RepairOrder stored = repairOrderRegistry.findOrder(created.getOrderId());
 
         assertNotNull(created, "Registering a problem returned null instead of a created order.");
-        assertSame(created, stored, "Created order was not found in the registry.");
-        assertEquals("Rear brake noise", stored.getProblemDescription(), "Stored problem description did not match the input.");
+        assertEquals(created.getOrderId(), stored.getOrderId(), "Created order was not found in the registry.");
+        assertEquals("Rear brake noise", stored.getProblemDescription(),
+                "Stored problem description did not match the input.");
     }
 
     /**
@@ -81,10 +90,10 @@ class ControllerTest {
      * Verifies adding diagnostic to existing order updates report and status.
      */
     @Test
-    void testEnterDiagnosticExistingOrderUpdatesOrder() {
-        Customer customer = controller.checkCustomer("0701234567");
-        Bike bike = new Bike("VoltBike S2", "SN-210");
-        RepairOrder order = controller.registerProblem(customer, bike, "Motor cuts out");
+    void testEnterDiagnosticExistingOrderUpdatesOrder() throws CustomerNotFoundException {
+        CustomerDTO customer = controller.checkCustomer("0701234567");
+        BikeDTO bike = customer.getBikes().get(0);
+        RepairOrderDTO order = controller.registerProblem(customer, bike, "Motor cuts out");
 
         controller.enterDiagnostic(order.getOrderId(), "Controller connector oxidized.");
 
@@ -107,10 +116,10 @@ class ControllerTest {
      * Verifies adding repair task to existing order updates total and status.
      */
     @Test
-    void testAddRepairTaskExistingOrderUpdatesOrder() {
-        Customer customer = controller.checkCustomer("0701234567");
-        Bike bike = new Bike("VoltBike S2", "SN-220");
-        RepairOrder order = controller.registerProblem(customer, bike, "Display not starting");
+    void testAddRepairTaskExistingOrderUpdatesOrder() throws CustomerNotFoundException {
+        CustomerDTO customer = controller.checkCustomer("0701234567");
+        BikeDTO bike = customer.getBikes().get(0);
+        RepairOrderDTO order = controller.registerProblem(customer, bike, "Display not starting");
 
         controller.addRepairTask(order.getOrderId(), "Replace display cable", 700);
 
@@ -132,10 +141,10 @@ class ControllerTest {
      * Verifies accepted completion updates status.
      */
     @Test
-    void testAcceptOrderSetsAcceptedStatus() {
-        Customer customer = controller.checkCustomer("0701234567");
-        Bike bike = new Bike("VoltBike S2", "SN-200");
-        RepairOrder order = controller.registerProblem(customer, bike, "Battery issue");
+    void testAcceptOrderSetsAcceptedStatus() throws CustomerNotFoundException {
+        CustomerDTO customer = controller.checkCustomer("0701234567");
+        BikeDTO bike = customer.getBikes().get(0);
+        RepairOrderDTO order = controller.registerProblem(customer, bike, "Battery issue");
         controller.enterDiagnostic(order.getOrderId(), "Battery cells degraded.");
         controller.addRepairTask(order.getOrderId(), "Replace battery pack", 3500);
 

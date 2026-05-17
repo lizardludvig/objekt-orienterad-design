@@ -24,7 +24,8 @@ class RepairOrderRegistryTest {
      */
     @BeforeEach
     void setUp() {
-        registry = new RepairOrderRegistry();
+        registry = RepairOrderRegistry.getInstance();
+
         bike = new Bike("Test Bike", "SN-123");
         customer = new Customer("C-1", "Test Person", "0700000000", Collections.singletonList(bike));
     }
@@ -39,8 +40,10 @@ class RepairOrderRegistryTest {
 
         assertNotNull(created, "Created order was null.");
         assertNotNull(fetched, "Stored order could not be found by ID.");
-        assertEquals(created.getOrderId(), fetched.getOrderId(), "Fetched order ID did not match the created order ID.");
-        assertEquals("Broken motor", fetched.getProblemDescription(), "Stored problem description did not match the input.");
+        assertEquals(created.getOrderId(), fetched.getOrderId(),
+                "Fetched order ID did not match the created order ID.");
+        assertEquals("Broken motor", fetched.getProblemDescription(),
+                "Stored problem description did not match the input.");
     }
 
     /**

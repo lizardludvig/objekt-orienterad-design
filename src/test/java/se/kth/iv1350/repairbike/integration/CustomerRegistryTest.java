@@ -2,7 +2,7 @@ package se.kth.iv1350.repairbike.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ class CustomerRegistryTest {
      * Verifies known phone number returns a customer.
      */
     @Test
-    void testFindCustomerReturnsKnownCustomer() {
+    void testFindCustomerReturnsKnownCustomer() throws CustomerNotFoundException {
         Customer customer = registry.findCustomer("0701234567");
 
         assertNotNull(customer, "Known phone number returned null instead of a customer.");
@@ -34,11 +34,27 @@ class CustomerRegistryTest {
     }
 
     /**
-     * Verifies unknown phone number returns null.
+     * Verifies unknown phone number throws exception. 
      */
     @Test
-    void testFindCustomerReturnsNullForUnknownNumber() {
-        Customer customer = registry.findCustomer("0999999999");
-        assertNull(customer, "Unknown phone number failed to return null.");
+    void testFindCustomerThrowsForUnknownNumber() {
+        CustomerNotFoundException exception = assertThrows(
+            CustomerNotFoundException.class, 
+            () -> registry.findCustomer("0999999999"),
+            "Expected findCustomer to throw CustomerNotFoundException for an unregistered number."
+        );
+        assertEquals("0999999999", exception.getPhoneNumber(), "Exception did not contain the expected phone number.");
+    }
+    
+    /**
+     * Verifies database crash simulation throws RuntimeException.
+     */
+    @Test
+    void testFindCustomerThrowsDatabaseFailureException() {
+        assertThrows(
+            DatabaseFailureException.class, 
+            () -> registry.findCustomer("0700000000"),
+            "Expected findCustomer to throw DatabaseFailureException when simulating a crash."
+        );
     }
 }

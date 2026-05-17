@@ -30,8 +30,20 @@ public class CustomerRegistry {
      *
      * @param phoneNumber The phone number to search for.
      * @return The matching customer, or null if no customer was found.
+     * @throws CustomerNotFoundException if the customer does not exist.
+     * @throws DatabaseFailureException if a database crash is simulated.
      */
-    public Customer findCustomer(String phoneNumber) {
-        return customersByPhone.get(phoneNumber);
+    public Customer findCustomer(String phoneNumber) throws CustomerNotFoundException {
+   
+        if (phoneNumber.equals("0700000000")) {
+            throw new DatabaseFailureException("Lost connection to the customer database server.");
+        }
+
+        Customer customer = customersByPhone.get(phoneNumber);
+
+        if (customer == null) {
+            throw new CustomerNotFoundException(phoneNumber);
+        }
+        return customer;
     }
 }

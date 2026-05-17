@@ -1,0 +1,28 @@
+14 maj 2026 16:40:25, Exception was thrown: Lost connection to the customer database server.
+se.kth.iv1350.repairbike.integration.DatabaseFailureException: Lost connection to the customer database server.
+	at se.kth.iv1350.repairbike.integration.CustomerRegistry.findCustomer(CustomerRegistry.java:39)
+	at se.kth.iv1350.repairbike.controller.Controller.checkCustomer(Controller.java:35)
+	at se.kth.iv1350.repairbike.view.View.executeScenario(View.java:39)
+	at se.kth.iv1350.repairbike.view.View.runBasicFlow(View.java:34)
+	at se.kth.iv1350.repairbike.startup.Main.main(Main.java:27)
+16 maj 2026 23:07:26, Exception was thrown: Lost connection to the customer database server.
+se.kth.iv1350.repairbike.integration.DatabaseFailureException: Lost connection to the customer database server.
+	at se.kth.iv1350.repairbike.integration.CustomerRegistry.findCustomer(CustomerRegistry.java:39)
+	at se.kth.iv1350.repairbike.controller.Controller.checkCustomer(Controller.java:35)
+	at se.kth.iv1350.repairbike.view.View.executeScenario(View.java:39)
+	at se.kth.iv1350.repairbike.view.View.runBasicFlow(View.java:34)
+	at se.kth.iv1350.repairbike.startup.Main.main(Main.java:25)
+16 maj 2026 23:09:07, Exception was thrown: Lost connection to the customer database server.
+se.kth.iv1350.repairbike.integration.DatabaseFailureException: Lost connection to the customer database server.
+	at se.kth.iv1350.repairbike.integration.CustomerRegistry.findCustomer(CustomerRegistry.java:39)
+	at se.kth.iv1350.repairbike.controller.Controller.checkCustomer(Controller.java:35)
+	at se.kth.iv1350.repairbike.view.View.executeScenario(View.java:39)
+	at se.kth.iv1350.repairbike.view.View.runBasicFlow(View.java:34)
+	at se.kth.iv1350.repairbike.startup.Main.main(Main.java:25)
+16 maj 2026 23:11:28, Exception was thrown: Lost connection to the customer database server.
+se.kth.iv1350.repairbike.integration.DatabaseFailureException: Lost connection to the customer database server.
+	at se.kth.iv1350.repairbike.integration.CustomerRegistry.findCustomer(CustomerRegistry.java:39)
+	at se.kth.iv1350.repairbike.controller.Controller.checkCustomer(Controller.java:35)
+	at se.kth.iv1350.repairbike.view.View.executeScenario(View.java:39)
+	at se.kth.iv1350.repairbike.view.View.runBasicFlow(View.java:34)
+	at se.kth.iv1350.repairbike.startup.Main.main(Main.java:25)
